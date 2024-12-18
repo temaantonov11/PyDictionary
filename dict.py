@@ -1,6 +1,13 @@
+import string
 
 # Функция, которая обрабатывает пользовательский ввод имени и возвращает его, если оно корректно.
 # Эта функция будет ждать ввода до тех пор, пока пользователь не введет корректно имя (состоящее только из букв)
+
+# Функция вывода исключений в терминал для пользователя
+def Warning(what):
+    if what == 'name':
+        print("Некорректное имя.", "Имя должно содержать только латинские буквы, цифры и пробелы, первая буква – заглавная",  "Повторите ввод", sep = '\n')
+
 
 def get_name():
     
@@ -13,17 +20,23 @@ def get_name():
     while (not correct_name):
         
         name = input()
-        
+
+        # Проверка первой буквы в имени
+        if name[0] in string.ascii_lowercase or name[0].isdigit():
+            Warning('name')
+            continue
+
+        # Проверка всего слова на корректность 
         for x in name:
-            # обработка некорректного имени
-            if (not x.isalpha()):
-                print("Введенное вами имя некорректно. Оно должно состоять только из букв.")
-                print("Повторите ввод")
+            if x not in string.ascii_letters and not x.isdigit():
+                Warning('name')
                 break
         else:
             correct_name = True
 
     return name
+
+
 
 
 
