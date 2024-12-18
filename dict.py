@@ -31,11 +31,17 @@ def set_name(parametr):
         if len(name) == 0:
             Warning(f"{parametr}")
             continue
-
-        # Проверка первой буквы в имени
-        if name[0] in string.ascii_lowercase or name[0].isdigit():
-            Warning(f"{name}")
+        
+        # Проверка на то, является ли первый символ цифрой
+        if name[0].isdigit():
+            Warning(f"{parametr}")
             continue
+
+        # Автозамена первой буквы имени/фамилии на заглавную
+        if name[0] in string.ascii_lowercase:
+            name = name[0].upper() + name[1:]
+
+        
 
         # Проверка всего слова на корректность 
         for x in name:
@@ -168,5 +174,5 @@ def set_date():
 
     return out_date       
 
-date = set_date()
-print(date)
+name = set_name('surname')
+print(name)
