@@ -9,7 +9,7 @@ def Warning(parametr):
     elif parametr == 'phone':
         print("Некорректный номер телефона", "Это поле обязательное.", "Номер должен содержать 11 цифр.", "Повторите ввод", sep='\n')
     elif parametr == 'date':
-        print("Некорректная дата рождения", "Формат полный - ДД/ММ/ГГГГ", "Повторите ввод")
+        print("Некорректная дата рождения.", "Формат полный - ДД.ММ.ГГГГ.", "Повторите ввод.", sep="\n")
 
 # Функция, которая обрабатывает пользовательский ввод имени/фамилии и возвращает его, если оно корректно.
 # Эта функция будет ждать ввода до тех пор, пока пользователь не введет корректное имя/фамилию (состоящее только из букв)
@@ -47,6 +47,7 @@ def set_name(parametr):
 
     return name
 
+# Функция ввода номера телефона пользователем. Работает по тому же принципу, что и set_name(parametr)
 def set_phone():
 
     # Переменная, которая контролирует корректность введенного номера
@@ -83,5 +84,89 @@ def set_phone():
 
     return phone
 
+# Функция ввода даты рождения. 
+def set_date():
 
+    # переменная контроля корректности введенной даты
+    correct_date = False
+    # информация для пользователя
+    print("Введите дату рождения. Формат ДД.ММ.ГГГГ. Это поле необязательное, его можно не заполнять")
 
+    #блок ввода и обработки данных
+    while (not correct_date):
+
+        date = input()
+
+        # Если поле пусто, то принимаем ввод, так как оно опциональное
+        if (len(date) == 0):
+            return date
+        
+        # Проверка на правильные разделители и формат в целом
+        if date[2] != '.' or date[5] != '.':
+            Warning('date')
+            continue
+
+        # Сплитим по "." для удобной проверки формата ввода
+        temp_date = date.split(".")
+
+        # Проверяем на то, что год состоит из 4 символов
+        if len(temp_date[2]) != 4:
+            Warning('date')
+            continue
+
+        # Проверка на тип данных
+        for x in temp_date:
+            if (not x.isdigit()):
+                Warning('date')
+                break
+        else:
+            # Проверка на корректность даты
+            
+            day = int(temp_date[0])
+            month = int(temp_date[1])
+            year = int(temp_date[2])
+
+            
+            if (1 <= month <= 12):
+                # Проверяем день, если в месяце 31 день
+                if (month in [1, 3, 5, 7, 8, 10, 12]):
+                    if day > 31 or day == 0:
+                        Warning('date')
+                        continue
+                    else:
+                        correct_date = True
+                # Проверяем день, если в месяце 30 дней
+                elif (month in [4, 6, 9, 11]):
+                    if (day > 30 or day == 0):
+                        Warning('date')
+                        continue
+                    else:
+                        correct_date = True
+
+                # Проверка на високосный год и количество дней в феврале
+                elif (month == 2):
+                    if (year % 4 == 0 or year % 400 == 0):
+                        if (day > 29):
+                            Warning('date')
+                            continue
+                        else:
+                            correct_date = True
+                    else:
+                        if (day > 28):
+                            Warning('date')
+                            continue
+                        else:
+                            correct_date = True
+            else:
+                Warning('date')
+                continue
+            
+
+    
+    # Склеивание даты обратно в строку
+    out_date = temp_date[0] + '.' + temp_date[1] + '.' + temp_date[2]
+
+    return out_date       
+
+date = set_date()
+print(date)
