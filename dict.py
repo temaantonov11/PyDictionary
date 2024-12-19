@@ -289,8 +289,12 @@ def fields_search(reference, code, file):
     # линейных поиск по файлу
     for record in file:
         splRecord = record.split(' ')
-        if (reference == splRecord[code][:len(splRecord[code])-1]):
-            
+        if (code == DATE_INDEX):
+            recordValue = splRecord[code][:len(splRecord[code])-1]
+        else:
+            recordValue = splRecord[code]
+        
+        if (reference == recordValue):
             results_list.append(record)
 
     return results_list
