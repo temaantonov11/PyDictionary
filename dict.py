@@ -231,7 +231,7 @@ def add_record(file):
          # проверка на существование записи в файле
         for exist_records in file:
             file_record = exist_records.split(' ')
-            if (file_record[NAME_INDEX] == name and file_record[NAME_INDEX] == surname):
+            if (file_record[NAME_INDEX] == name and file_record[SURNAME_INDEX] == surname):
                 Warning('unique')
                 isFailedLoop = True
                 break
@@ -416,7 +416,7 @@ def calculate_age(file):
     
     if (splRecord[3] == NULL_STRING):
         print_border()
-        print("Возвраст не найден! У этой записи не задана дата рождения")
+        print("Возраст не найден! У этой записи не задана дата рождения")
         return AGE_BAN
 
     date = splRecord[3].split('.')
@@ -440,6 +440,7 @@ def calculate_age(file):
             age += 1
     return age
 
+# функция обработки полученного возраста и вывода на экран, она будет вызывать в event_loop()
 def proccessing_age(file):
 
     age = calculate_age(file)
@@ -447,6 +448,56 @@ def proccessing_age(file):
     if (age != AGE_BAN):
         print_border()
         print("Возраст:", age)
+
+# коды, возращаемые функцией delete_record(file)
+NOT_FIND = -1
+SUCCESSFUL_DELETE = 0
+# функция удаление записи из справочника
+def delete_record(file):
+
+    # ставим указатель на начало файла
+    file.seek(0)
+
+    # список, который будет хранить строки из файла
+    records = []
+
+    # получаем ключ для поиска строки, которую нужно удалить, остальные будем добавлять в records
+    name = set_name('name')
+    surname = set_name('surname')
+
+    if (uniqueKey_search([name, surname], file) == NULL_STRING):
+        return NOT_FIND
+
+    # проходимся по файлу и добавляем в список те строки, у которых не совпадает ключ с референсом
+    for record in file:
+        splRecord = record.split(' ')
+        if (name == splRecord[NAME_INDEX] and surname == splRecord[SURNAME_INDEX]):
+            continue
+        else:
+            records.append(record)
+
+    # очищаем файл 
+    file.seek(0)
+    file.truncate(0)
+
+    # перезаписываем файл, записываем сразу список строк
+    file.writelines(records)
+    # выгружаем буффер в файл на диске
+    file.flush()
+
+    return SUCCESSFUL_DELETE
+
+# функция, обарабывающая коды выполнения delete_record, она будет вызываться в event_loop()
+def processing_delete(file):
+
+    code = delete_record(file)
+
+    if (code == NOT_FIND):
+        print_border()
+        print("Такой записи не существует.")
+    elif (code == SUCCESSFUL_DELETE):
+        print_border()
+        print("Запись успешно удалена.")
 
 # Главная функция программы, которая обрабатывает события (команды пользователя)
 def event_loop():
@@ -475,7 +526,7 @@ def event_loop():
         elif (command_code == PRINT_ALL):
             print_records(file)
         elif (command_code == DELETE):
-            ...
+            processing_delete(file)
         elif (command_code == REDACT):
             ...
         elif (command_code == CALCULATE_AGE):
