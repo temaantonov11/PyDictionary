@@ -245,7 +245,63 @@ def print_records(file):
 
     for records in file:
         print(records, end="")
+
+# константа, содержащая пустую строку
+nullString = ''
+
+# функция поиска записи по уникальному идентификатору
+def uniqueKey_search(key, file):
+
+    # ставим указатель на начало файла
+    file.seek(0)
+
+    # выполняем линейных поиск по файлу, сравнивая значения уникального идентификатора
+    for record in file:
+        splRecord = record.split(' ')
+        if (key[0] == splRecord[0] and key[1] == splRecord[1]):
+            return record
+
+    # если запись не найдена, функция возвращает пустую строку (она будет обработана)
+    return nullString
+
+def search_interface(file):
+
+    # локальные константы для удобства и читабельности кода
+    UNIQUE_SEARCH = 1
+    QUIT_SEARCH = 2
+
     
+    
+    isWorkSearch = True
+
+    while(isWorkSearch):
+        # информация для пользователя
+        print("1. Поиск по уникальному идентификатору (Имя + Фамилия)")
+        print("2. Возврат в главное меню")
+
+        # обработка команды
+        command_code = int(input())
+        if (command_code > 2 or command_code < 0):
+            print("Команда не найдена, попробуй еще раз!")
+            continue
+
+        if (command_code == UNIQUE_SEARCH):
+            
+            # ввода уникального ключа
+            name = set_name('name')
+            surname = set_name('surname')
+            
+            # структура для удобства передачи
+            key = [name, surname]
+
+            search_result = uniqueKey_search(key, file) 
+
+            if (search_result == nullString):
+                print("Запись не найдена!")
+            else:
+                print(search_result)
+        elif (command_code == QUIT_SEARCH):
+            break
 
 # Главная функция программы, которая обрабатывает события (команды пользователя)
 def event_loop():
@@ -270,7 +326,7 @@ def event_loop():
         if (command_code == ADD):
             add_record(file)
         elif (command_code == FIND):
-            ...
+            search_interface(file)
         elif (command_code == PRINT_ALL):
             print_records(file)
         elif (command_code == DELETE):
