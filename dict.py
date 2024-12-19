@@ -208,6 +208,11 @@ REDACT = 5
 CALCULATE_AGE = 6
 QUIT = 7
 
+# константы с индексами для читаемости кода
+NAME_INDEX = 0
+SURNAME_INDEX = 1
+PHONE_INDEX = 2
+DATE_INDEX = 3
 def add_record(file):
 
     isAdded = False
@@ -226,7 +231,7 @@ def add_record(file):
          # проверка на существование записи в файле
         for exist_records in file:
             file_record = exist_records.split(' ')
-            if (file_record[0] == name and file_record[1] == surname):
+            if (file_record[NAME_INDEX] == name and file_record[NAME_INDEX] == surname):
                 Warning('unique')
                 isFailedLoop = True
                 break
@@ -257,7 +262,7 @@ def print_records(file):
         print(records, end="")
 
 # константа, содержащая пустую строку
-nullString = ''
+NULL_STRING = ''
 
 # функция поиска записи по уникальному идентификатору
 def uniqueKey_search(key, file):
@@ -268,30 +273,64 @@ def uniqueKey_search(key, file):
     # выполняем линейных поиск по файлу, сравнивая значения уникального идентификатора
     for record in file:
         splRecord = record.split(' ')
-        if (key[0] == splRecord[0] and key[1] == splRecord[1]):
+        if (key[NAME_INDEX] == splRecord[NAME_INDEX] and key[SURNAME_INDEX] == splRecord[SURNAME_INDEX]):
             return record
 
     # если запись не найдена, функция возвращает пустую строку (она будет обработана)
-    return nullString
+    return NULL_STRING
+
+def fields_search(reference, code, file):
+
+    # ставим указатель на начало файла
+    file.seek(0)
+
+    # список, хранящий результаты поиска
+    results_list = []
+
+    # линейных поиск по файлу
+    for record in file:
+        splRecord = record.split(' ')
+        if (reference == splRecord[code]):
+            results_list.append(record)
+
+    return results_list
+
+# функция обработки результата поиска по неключевому полю
+def result_proccessing(search_result):
+    if (len(search_result) == 0):
+        print_border()
+        print("Не найдено ни одной записи!")
+    else:
+        print_border()
+        print("Записи найдены: ")
+        for x in search_result:
+            print(x, end='')
 
 def search_interface(file):
 
     # локальные константы для удобства и читабельности кода
     UNIQUE_SEARCH = 1
-    QUIT_SEARCH = 2
+    NAME_SEARCH = 2
+    SURNAME_SEARCH = 3
+    PHONE_SEARCH = 4
+    DATE_SEARCH = 5
+    QUIT_SEARCH = 6
 
-    
-    
+ 
     isWorkSearch = True
 
     while(isWorkSearch):
         # информация для пользователя
         print_border()
-        print("1. Поиск по уникальному идентификатору (Имя + Фамилия)")
-        print("2. Возврат в главное меню")
+        print("1. Поиск по уникальному идентификатору (Имя + Фамилия).")
+        print("2. Поиск по имени.")
+        print("3. Поиск по фамилии.")
+        print("4. Поиск по номеру телефона.")
+        print("5. Поиск дате рождения")
+        print("6. Возврат в главное меню.")
 
         # обработка команды
-        command_code = command_processing(2)
+        command_code = command_processing(6)
         if (command_code == COMMAND_BAN):
             continue
 
@@ -306,15 +345,41 @@ def search_interface(file):
 
             search_result = uniqueKey_search(key, file) 
 
-            if (search_result == nullString):
+            if (search_result == NULL_STRING):
                 print_border()
                 print("Запись не найдена!")
             else:
                 print_border()
                 print("Запись успешно найдена:", search_result, end='')
+        
+        elif (command_code == NAME_SEARCH):
+            name = set_name('name')
+            # получение списка результатов
+            search_result = fields_search(name, NAME_INDEX, file)
+            # обработка списка результатов
+            result_proccessing(search_result)
+
+        elif (command_code == SURNAME_SEARCH):
+            surname = set_name('surname')
+            # получение списка результатов
+            search_result = fields_search(surname, SURNAME_INDEX, file)
+            # обработка списка результатов
+            result_proccessing(search_result)
+        
+        elif (command_code == PHONE_SEARCH):
+            phone = set_phone()
+            search_result = fields_search(phone, PHONE_INDEX, file)
+            result_proccessing(search_result)
+
+        elif (command_code == DATE_SEARCH):
+            date = set_date()
+            search_result = fields_search(date, DATE_INDEX, file)
+            result_proccessing(search_result)
+
         elif (command_code == QUIT_SEARCH):
             break
 
+# Константа, означающая, что обработка команды завершилась с ошибкой
 COMMAND_BAN = 0
 
 # функция для ввода и обработки команды
