@@ -458,7 +458,7 @@ SUCCESSFUL_DELETE = 0
 def delete_record(file):
 
     # ставим указатель на начало файла
-    file.seek(0)
+    
 
     # список, который будет хранить строки из файла
     records = []
@@ -470,6 +470,7 @@ def delete_record(file):
     if (uniqueKey_search([name, surname], file) == NULL_STRING):
         return NOT_FIND
 
+    file.seek(0)
     # проходимся по файлу и добавляем в список те строки, у которых не совпадает ключ с референсом
     for record in file:
         splRecord = record.split(' ')
@@ -566,10 +567,28 @@ def redact_interface(file):
         
     # обработка команды
     if (command_code == CHANGE_NAME):
-        new_name = set_name('name')
+       
+        correct_name = False
+        while(not correct_name):
+            new_name = set_name('name')
+         # проверка на уникальность ключа
+            check_key = uniqueKey_search([new_name, surname], file)
+            if (check_key != NULL_STRING):
+                Warning('unique')
+                continue
+            else:
+                break
         redact_record(NAME_INDEX, file, new_name, [name, surname])
     elif (command_code == CHANGE_SURNAME):
-        new_surname = set_name('surname')
+        correct_surname = False
+        while (not correct_surname):
+            new_surname = set_name('surname')
+            check_key = uniqueKey_search([name, new_surname], file)
+            if (check_key != NULL_STRING):
+                Warning('unique')
+                continue
+            else:
+                break
         redact_record(SURNAME_INDEX, file, new_surname, [name, surname])
     elif (command_code == CHANGE_PHONE):
         new_phone = set_phone()
@@ -607,7 +626,6 @@ def event_loop():
         if (command_code == COMMAND_BAN):
             continue
         
-
         # поиск и выполнение команды, которую выбрал пользователь
 
         if (command_code == ADD):
