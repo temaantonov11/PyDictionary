@@ -210,8 +210,10 @@ def add_record(file):
 
         isFailedLoop = False
 
-        # проверка на существование записи в файле
+       
+        # ставим указатель в файле в начало файла
         file.seek(0)
+         # проверка на существование записи в файле
         for exist_records in file:
             file_record = exist_records.split(' ')
             if (file_record[0] == name and file_record[1] == surname):
@@ -228,9 +230,21 @@ def add_record(file):
         date = set_date()
 
     record = name + " " + surname + " " + phone + " " + date + '\n'
+    # добавляем запись в буфер
     file.write(record)
+    # выкидываем запись из буфера в файл на диск
     file.flush()
 
+def print_records(file):
+    print("------------------------------------------------------------")
+    print("Справочник")
+    print("Имя", "Фамилия", "Номер телефона", "Дата рождения")
+    
+    # ставим указатель в начало файла
+    file.seek(0)
+
+    for records in file:
+        print(records, end="")
     
 
 # Главная функция программы, которая обрабатывает события (команды пользователя)
@@ -258,7 +272,7 @@ def event_loop():
         elif (command_code == FIND):
             ...
         elif (command_code == PRINT_ALL):
-            ...
+            print_records(file)
         elif (command_code == DELETE):
             ...
         elif (command_code == REDACT):
