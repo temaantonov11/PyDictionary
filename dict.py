@@ -291,9 +291,8 @@ def search_interface(file):
         print("2. Возврат в главное меню")
 
         # обработка команды
-        command_code = int(input())
-        if (command_code > 2 or command_code < 0):
-            print("Команда не найдена, попробуй еще раз!")
+        command_code = command_processing(2)
+        if (command_code == COMMAND_BAN):
             continue
 
         if (command_code == UNIQUE_SEARCH):
@@ -316,6 +315,20 @@ def search_interface(file):
         elif (command_code == QUIT_SEARCH):
             break
 
+COMMAND_BAN = 0
+
+# функция для ввода и обработки команды
+def command_processing(command_count):
+    command_code = input()
+    if (not command_code.isdigit()):
+        Warning('command')
+        return COMMAND_BAN
+    command_code = int(command_code)
+    if (command_code <= 0 or command_code > command_count):
+        Warning('command')
+        return COMMAND_BAN
+    return command_code
+
 # Главная функция программы, которая обрабатывает события (команды пользователя)
 def event_loop():
     isWork = True
@@ -328,11 +341,11 @@ def event_loop():
         # вывод доступных команд пользователю
         list_commands()
         
-        # обработка введенного значения
-        command_code = int(input())
-        if (command_code <= 0 or command_code > 7):
-            Warning('command')
+        # ввод команды
+        command_code = command_processing(7)
+        if (command_code == COMMAND_BAN):
             continue
+        
 
         # поиск и выполнение команды, которую выбрал пользователь
 
