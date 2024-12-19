@@ -180,7 +180,7 @@ def set_date():
     # Склеивание даты обратно в строку
     out_date = temp_date[0] + '.' + temp_date[1] + '.' + temp_date[2]
 
-    return out_date       
+    return out_date    
 
 # функция печати разделения
 def print_border():
@@ -213,19 +213,18 @@ NAME_INDEX = 0
 SURNAME_INDEX = 1
 PHONE_INDEX = 2
 DATE_INDEX = 3
+
 def add_record(file):
 
     isAdded = False
 
     while(not isAdded):
-
         # ввод данных 
         name = set_name('name')
         surname = set_name('surname')
 
         isFailedLoop = False
 
-       
         # ставим указатель в файле в начало файла
         file.seek(0)
          # проверка на существование записи в файле
@@ -290,7 +289,8 @@ def fields_search(reference, code, file):
     # линейных поиск по файлу
     for record in file:
         splRecord = record.split(' ')
-        if (reference == splRecord[code]):
+        if (reference == splRecord[code][:len(splRecord[code])-1]):
+            
             results_list.append(record)
 
     return results_list
@@ -326,7 +326,7 @@ def search_interface(file):
         print("2. Поиск по имени.")
         print("3. Поиск по фамилии.")
         print("4. Поиск по номеру телефона.")
-        print("5. Поиск дате рождения")
+        print("5. Поиск по дате рождения")
         print("6. Возврат в главное меню.")
 
         # обработка команды
