@@ -16,6 +16,8 @@ def Warning(parametr):
         print("Такой команды не существует. Попробуйте еще раз.")
     elif parametr == 'unique':
         print("Запись с таким уникальный идентификатором (Имя+Фамилия) существует. Попробуйте еще раз")
+    elif parametr == 'exist':
+        print("Такой записи не существует!")
     print_border()
 # Функция, которая обрабатывает пользовательский ввод имени/фамилии и возвращает его, если оно корректно.
 # Эта функция будет ждать ввода до тех пор, пока пользователь не введет корректное имя/фамилию (состоящее только из букв)
@@ -493,11 +495,100 @@ def processing_delete(file):
     code = delete_record(file)
 
     if (code == NOT_FIND):
-        print_border()
-        print("Такой записи не существует.")
+        Warning("exist")
     elif (code == SUCCESSFUL_DELETE):
         print_border()
         print("Запись успешно удалена.")
+
+def redact_record(code, file, new_field, unique_key):
+    # ставим указатель на начало файла
+    file.seek(0)
+
+    records = []
+
+    for record in file:
+        splRecord = record[:len(record)-1].split(' ')
+        if (splRecord[NAME_INDEX] == unique_key[NAME_INDEX] and splRecord[SURNAME_INDEX] == unique_key[SURNAME_INDEX]):
+            splRecord[code] = new_field
+            record = splRecord[NAME_INDEX] + ' ' + splRecord[SURNAME_INDEX] + ' ' + splRecord[PHONE_INDEX] + ' ' + splRecord[DATE_INDEX] + '\n'   
+            records.append(record)
+        else:
+            records.append(record)
+
+    # очищаем файл 
+    file.seek(0)
+    file.truncate(0)
+
+    # перезаписываем файл, записываем сразу список строк
+    file.writelines(records)
+    # выгружаем буффер в файл на диске
+    file.flush()
+
+
+
+SUCCESSFUL_REDACT = 0
+
+def redact_interface(file):
+
+    CHANGE_NAME = 1
+    CHANGE_SURNAME = 2
+    CHANGE_PHONE = 3
+    CHANGE_DATE = 4
+
+    
+
+    # получаем уникальный ключ для поиска записи, в которой нужно изменить поле
+    name = set_name('name')
+    surname = set_name('surname')
+
+    change_record = uniqueKey_search([name, surname], file)
+
+    # проверка на существование записи
+    if (change_record == NULL_STRING):
+        return NOT_FIND
+    
+    # информация для пользователя
+    print("Выберите поле, которое хотите изменить.")
+    print("1. Имя")
+    print("2. Фамилия")
+    print("3. Номер телефона")
+    print("4. Дата рождения")
+
+    isCorrectCommand = False
+    # Ввода команды до тех пор, пока не будет введена корректная команда
+    while (not isCorrectCommand):
+        command_code = command_processing(4)
+        if (command_code == COMMAND_BAN):
+            continue
+        else:
+            isCorrectCommand = True
+            break
+        
+    # обработка команды
+    if (command_code == CHANGE_NAME):
+        new_name = set_name('name')
+        redact_record(NAME_INDEX, file, new_name, [name, surname])
+    elif (command_code == CHANGE_SURNAME):
+        new_surname = set_name('surname')
+        redact_record(SURNAME_INDEX, file, new_surname, [name, surname])
+    elif (command_code == CHANGE_PHONE):
+        new_phone = set_phone()
+        redact_record(PHONE_INDEX, file, new_phone, [name, surname])
+    elif (command_code == CHANGE_DATE):
+        new_date = set_date()
+        redact_record(DATE_INDEX, file, new_date, [name, surname])
+
+    return SUCCESSFUL_REDACT
+
+# обработная возвращаемых кодов функцией redact_interface
+def redact_processing(file):
+    code = redact_interface(file)
+
+    if code == SUCCESSFUL_REDACT:
+        print_border()
+        print("Запись успешно изменена!")
+    elif code == NOT_FIND:
+        Warning("exist")
 
 # Главная функция программы, которая обрабатывает события (команды пользователя)
 def event_loop():
@@ -528,7 +619,7 @@ def event_loop():
         elif (command_code == DELETE):
             processing_delete(file)
         elif (command_code == REDACT):
-            ...
+            redact_processing(file)
         elif (command_code == CALCULATE_AGE):
             proccessing_age(file)
         elif (command_code == QUIT):
