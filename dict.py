@@ -1,4 +1,5 @@
 import string
+import datetime
 
 # Функция вывода исключений в терминал для пользователя
 def Warning(parametr):
@@ -288,12 +289,10 @@ def fields_search(reference, code, file):
 
     # линейных поиск по файлу
     for record in file:
-        splRecord = record.split(' ')
-        if (code == DATE_INDEX):
-            recordValue = splRecord[code][:len(splRecord[code])-1]
-        else:
-            recordValue = splRecord[code]
-        
+
+        # нужно вырезать перенос строки
+        splRecord = record[:len(record)-1].split(' ')
+        recordValue = splRecord[code]
         if (reference == recordValue):
             results_list.append(record)
 
@@ -398,6 +397,56 @@ def command_processing(command_count):
         return COMMAND_BAN
     return command_code
 
+AGE_BAN = -1
+
+def calculate_age(file):
+    
+    name = set_name('name')
+    surname = set_name('surname')
+
+    record = uniqueKey_search([name, surname], file)
+
+    # обработка результата поиска
+    if (record == NULL_STRING):
+        print_border()
+        print("Запись не найдена!")
+        return AGE_BAN
+
+    splRecord = record[:len(record)-1].split(' ')
+    if (len(splRecord) == 3):
+        print_border()
+        print("Возвраст не найден! У этой записи не задана дата рождения")
+        return AGE_BAN
+
+    date = splRecord[3].split('.')
+
+    day = int(date[0])
+    month = int(date[1])
+    year = int(date[2])
+
+    # получаем текущую дату по местному времени
+    current_date = datetime.date.today()
+    current_day = current_date.day
+    current_month = current_date.month
+    current_year = current_date.year
+
+    # расчет возраста
+    age = current_year - year - 1
+    if (current_month > month):
+        age += 1
+    elif (month == current_month):
+        if (current_day >= day):
+            age += 1
+    return age
+
+def proccessing_age(file):
+
+    age = calculate_age(file)
+
+    if (age != AGE_BAN):
+        print_border()
+        print("Возраст:", age)
+
 # Главная функция программы, которая обрабатывает события (команды пользователя)
 def event_loop():
     isWork = True
@@ -429,7 +478,7 @@ def event_loop():
         elif (command_code == REDACT):
             ...
         elif (command_code == CALCULATE_AGE):
-            ...
+            proccessing_age(file)
         elif (command_code == QUIT):
             break
     
