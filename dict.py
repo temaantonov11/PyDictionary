@@ -413,7 +413,8 @@ def calculate_age(file):
         return AGE_BAN
 
     splRecord = record[:len(record)-1].split(' ')
-    if (len(splRecord) == 3):
+    
+    if (splRecord[3] == NULL_STRING):
         print_border()
         print("Возвраст не найден! У этой записи не задана дата рождения")
         return AGE_BAN
