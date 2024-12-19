@@ -12,6 +12,8 @@ def Warning(parametr):
         print("Некорректная дата рождения.", "Формат полный - ДД.ММ.ГГГГ.", "Повторите ввод.", sep="\n")
     elif parametr == 'command':
         print("Такой команды не существует. Попробуйте еще раз.")
+    elif parametr == 'unique':
+        print("Запись с таким уникальный идентификатором (Имя+Фамилия) существует. Попробуйте еще раз")
 
 # Функция, которая обрабатывает пользовательский ввод имени/фамилии и возвращает его, если оно корректно.
 # Эта функция будет ждать ввода до тех пор, пока пользователь не введет корректное имя/фамилию (состоящее только из букв)
@@ -196,6 +198,40 @@ REDACT = 5
 CALCULATE_AGE = 6
 QUIT = 7
 
+def add_record(file):
+
+    isAdded = False
+
+    while(not isAdded):
+
+        # ввод данных 
+        name = set_name('name')
+        surname = set_name('surname')
+
+        isFailedLoop = False
+
+        # проверка на существование записи в файле
+        file.seek(0)
+        for exist_records in file:
+            file_record = exist_records.split(' ')
+            if (file_record[0] == name and file_record[1] == surname):
+                Warning('unique')
+                isFailedLoop = True
+                break
+        else:
+            isAdded = True
+           
+        if (isFailedLoop):
+            continue
+
+        phone = set_phone()
+        date = set_date()
+
+    record = name + " " + surname + " " + phone + " " + date + '\n'
+    file.write(record)
+    file.flush()
+
+    
 
 # Главная функция программы, которая обрабатывает события (команды пользователя)
 def event_loop():
@@ -218,7 +254,7 @@ def event_loop():
         # поиск и выполнение команды, которую выбрал пользователь
 
         if (command_code == ADD):
-            ...
+            add_record(file)
         elif (command_code == FIND):
             ...
         elif (command_code == PRINT_ALL):
